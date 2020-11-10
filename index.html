@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>myTest Project</title>
+</head>
+<body>
+
+
+<script>
+
+function jsonDifference(jsonLocal, jsonOnline) {
+  var jsonDiff = [];
+  jsonDiff['equal']   = [];
+  jsonDiff['new']     = [];
+  jsonDiff['update']  = [];
+  jsonDiff['delete']  = [];
+
+  // Find and return object by property and value
+  var findByProp;
+  this.findByProp = function(o, prop, val) {
+    if (o == null) return false;
+    if (o[prop] === val) {
+      return o;
+    }
+    var result, p;
+    for (p in o) {
+        if (o.hasOwnProperty(p) && typeof o[p] === 'object') {
+          result = this.findByProp(o[p], prop, val);
+          if (result) {
+            return result;
+          }
+        }
+    }
+    return result;
+  }
+
+  // Search equal, update and delete assets
+  for (i = 0; i < jsonLocal.length ; i++) {
+    var local = jsonLocal[i];
+    var online = this.findByProp(jsonOnline, "filename", jsonLocal[i].filename);
+  
+    if (online) {
+      if (local.hash === online.hash) {
+        // Equal
+        jsonDiff['equal'].push(online);
+      } else {
+        // Update
+        jsonDiff['update'].push(online);
+      }
+    } else {
+      // Delete
+      jsonDiff['delete'].push(local);
+    }
+  }
+
+  // Search new assets
+  for (i = 0; i < jsonOnline.length ; i++) {
+    var local = this.findByProp(jsonLocal, "filename", jsonOnline[i].filename);
+    var online = jsonOnline[i];
+  
+    if (!local) {
+      // New
+      jsonDiff['new'].push(online);
+    }
+  }
+
+  // Return result
+  return jsonDiff;
+}
+
+
+var jsonOnline = [
+  {"filename":"pdf.pdf","hash":"asdfgjurawsdfgsd67t67zhgth7uztr67uhgt"},
+  {"filename":"klo.papier","hash":"sadfghjte456ztrf5z6trftedrtzgfr5z"},
+  {"filename":"master.json","hash":"shu65tgkrtho6tzfno6ropzuhokpfgop"},
+  {"filename":"penis.jpg","hash":"adsdfgjhoigjrdiucerhu34e4grfddgf"}
+];
+
+var jsonLocal = [
+  {"filename":"penis.jpg","hash":"adsdfgjhoigjrdiucerhu34e4grfddgf"},
+  {"filename":"haus.png","hash":"sadfghjk67ztrtzugfrtzujtrzgrtz"},
+  {"filename":"pdf.pdf","hash":"asdfgjurtzhz67t67zhgth7uztr67uhgt"},
+  {"filename":"klo.papier","hash":"sadfghjte456ztrf5z6trftedrtzgfr5z"}
+];
+
+
+var jsonDiff = jsonDifference(jsonLocal, jsonOnline);
+console.log(jsonDiff);
+
+</script>
+
+</body>
+</html>
